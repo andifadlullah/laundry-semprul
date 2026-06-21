@@ -71,16 +71,43 @@ class AdministrasiController extends Controller
      */
     public function edit(string $id)
     {
-        //
-    }
+        $data['administrasi'] = \App\Models\Administrasi::findOrFail($id);
+
+        $data['list_costumer'] =
+            \App\Models\Costumer::selectRaw("id, concat(kode,'-',nama) as tampil")
+            ->pluck('tampil', 'id');
+
+        $data['list_karyawan'] =
+            \App\Models\Karyawan::selectRaw("id, concat(kode,'-',nama) as tampil")
+            ->pluck('tampil', 'id');
+
+        return view('administrasi_edit', $data);
+        }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        //
-    }
+        $request->validate([
+        'tanggal'     => 'required',
+        'costumer_id' => 'required',
+        'karyawan_id' => 'required',
+        'biaya'       => 'required|numeric',
+        ]);
+
+        $administrasi = \App\Models\Administrasi::findOrFail($id);
+
+        $administrasi->update([
+            'tanggal'     => $request->tanggal,
+            'costumer_id' => $request->costumer_id,
+            'karyawan_id' => $request->karyawan_id,
+            'biaya'       => $request->biaya,
+        ]);
+
+        return redirect('/administrasi')
+            ->with('success', 'Data administrasi berhasil diupdate');
+        }
 
     /**
      * Remove the specified resource from storage.
